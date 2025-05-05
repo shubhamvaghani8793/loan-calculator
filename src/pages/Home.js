@@ -1,11 +1,25 @@
-import { Button, TextField } from '@mui/material'
+import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from '@mui/material'
 import { useFormik } from 'formik';
 import React from 'react'
 import * as Yup from 'yup'
 import InputField from '../components/InputField';
+import { useLoanCalculator } from '../hooks/useLoanCalculator';
 
 function Home() {
 
+  const { emi, schedule, calculateEMI } = useLoanCalculator();
+
+  console.log(emi);
+  console.log(schedule);
+  
+  const handleSubmit = (values) => {
+    console.log(values);
+    let amount = Number(Number(values.amount).toFixed(2));
+    let rate = Number(Number(values.rate).toFixed(2));
+    let years = Number(Number(values.years).toFixed(2));
+   
+    calculateEMI(amount, rate, years)
+  }
 
   const validationSchema = Yup.object({
     amount: Yup.string().required('Loan Amount is Required!'),
@@ -29,8 +43,8 @@ function Home() {
     },
     validationSchema,
     onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    },
+      handleSubmit(values)
+    }
   })
 
   const handleChangeInput = (e) => {
@@ -79,6 +93,38 @@ function Home() {
           Submit
         </Button>
       </form>
+
+      {
+        schedule.length > 0 &&
+        <div className='mt-10'>
+          <h1>Monthly EMI: $2051.65</h1>
+
+          <div>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Month</TableCell>
+                    <TableCell>Principal</TableCell>
+                    <TableCell>Interest</TableCell>
+                    <TableCell>Remaining Balance</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {schedule.map((row, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{row.month}</TableCell>
+                      <TableCell>{Number(row.principal).toFixed(2)} CAD</TableCell>
+                      <TableCell>{Number(row.interest).toFixed(2)} CAD</TableCell>
+                      <TableCell>{Number(row.balance).toFixed(2)} CAD</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        </div>
+      }
     </div>
   )
 }
