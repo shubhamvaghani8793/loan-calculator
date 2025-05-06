@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button, Container, IconButton, Typography } from '@mui/material';
 import './App.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -16,7 +15,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Navbar />
+        <Navbar toggleDrawer={toggleDrawer} />
 
         <Routes>
           <Route path="/" element={<Home />} />
@@ -27,11 +26,6 @@ function App() {
         
         <Sidebar open={open} toggleDrawer={toggleDrawer} />
       </BrowserRouter>
-      
-        {/* <IconButton onClick={toggleDrawer} sx={{ m: 2 }}>
-          <MenuIcon />
-        </IconButton> */}
-      
     </>
   );
 }

@@ -4,8 +4,8 @@ export const useLoanCalculator = () => {
   const [emi, setEmi] = useState(null);
   const [schedule, setSchedule] = useState([]);
 
-  const calculateEMI = (P, annualRate, years) => {
-    const R = annualRate / 12 / 100; 
+  const calculateEMI = (P, annualRate, years, conversionRate = 1) => {
+    const R = annualRate / 12 / 100;
     const N = years * 12;
 
     let emiValue = 0;
@@ -16,21 +16,22 @@ export const useLoanCalculator = () => {
       emiValue = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
     }
 
-    setEmi(emiValue.toFixed(2));
+    const convertedEmi = emiValue * conversionRate;
+    setEmi(convertedEmi.toFixed(2));
 
     const amortization = [];
     let balance = P;
 
     for (let i = 1; i <= N; i++) {
-      let interest = R === 0 ? 0 : balance * R;
-      let principalPaid = emiValue - interest;
-      balance -= principalPaid;
+      const interest = R === 0 ? 0 : balance * R;
+      const principalPaid = emiValue - interest;
+      balance = +(balance - principalPaid).toFixed(8);
 
       amortization.push({
         month: i,
-        principal: principalPaid.toFixed(2),
-        interest: interest.toFixed(2),
-        remaining: balance > 0 ? balance.toFixed(2) : '0.00',
+        principal: (principalPaid * conversionRate).toFixed(2),
+        interest: (interest * conversionRate).toFixed(2),
+        remaining: (i === N ? 0 : balance * conversionRate).toFixed(2),
       });
     }
 

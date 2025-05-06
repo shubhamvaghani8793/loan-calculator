@@ -26,6 +26,9 @@ export const CustomThemeProvider = ({ children }) => {
     palette: {
       mode,
     },
+    typography: {
+      fontFamily: `sans-serif`,
+    },
   }), [mode]);
 
   return (

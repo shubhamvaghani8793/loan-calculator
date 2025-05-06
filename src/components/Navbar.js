@@ -1,7 +1,11 @@
-import React, { useContext } from 'react';
-import { AppBar, Toolbar, Button, styled, Switch, FormControlLabel } from '@mui/material';
+import React, { useContext, useEffect } from 'react';
+import { AppBar, Toolbar, Button, styled, Switch, FormControlLabel, IconButton } from '@mui/material';
 import { Link, NavLink } from 'react-router-dom';
 import { ThemeContext } from '../context/ThemeContext';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useDispatch } from 'react-redux';
+import currencyService from '../services/currrency';
+import { AddCurrencies, setLoading } from '../store/currenciesSlice';
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -71,38 +75,69 @@ const linkStyle = {
 };
 
 const activeStyle = {
-  backgroundColor: '#032d6e', // dark blue
+  backgroundColor: '#032d6e',
 };
 
-function Navbar() {
+
+function Navbar({toggleDrawer}) {
+  
+  const dispatch = useDispatch()
   const { toggleTheme, mode } = useContext(ThemeContext);
+
+  const getCurrenciesList = async () => {
+    dispatch(setLoading(true))
+    try {
+      const response = await currencyService.GetCurrencyFetch();
+      if (response.status === 200) {
+        const NewData = Object.keys(response?.data?.conversion_rates).map((key) => {
+          return {name: key, rate: parseFloat(response?.data?.conversion_rates[key].toFixed(2))}
+        })  
+        dispatch(AddCurrencies(NewData))
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(setLoading(false))
+    }
+  }
+
+  useEffect(() => {
+    getCurrenciesList()
+  }, [])
+
   return (
-    <AppBar position="static">
-      <div className='flex items-center justify-between px-12'>
+    <AppBar position="sticky">
+      <div className='flex items-center justify-between sm:pl-6 pl-4 h-14 sm:h-auto'>
+            <div className='sm:hidden flex'>
+            <IconButton onClick={toggleDrawer}>
+              <MenuIcon sx={{ color: "white"}}/>
+            </IconButton>
+          </div>
         <Link to="/" className='text-xl'>Loan Calculator</Link>
 
-        <div className='flex items-center gap-4'>
-          <Toolbar>
-            {navItems.map(({ label, to }) => (
-              <NavLink
-                key={to}
-                to={to}
-                style={({ isActive }) => ({
-                  ...linkStyle,
-                  ...(isActive ? activeStyle : {}),
-                  borderRadius: 4,
-                  padding: '6px 12px',
-                })}
-                className="hover:bg-white/20 transition-colors"
-              >
-                <span>{label}</span> 
-              </NavLink>
-            ))}
-          </Toolbar>
+        <div className='flex items-center gap-2'>
+          <div className='hidden sm:flex'>
+            <Toolbar>
+              {navItems.map(({ label, to }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  style={({ isActive }) => ({
+                    ...linkStyle,
+                    ...(isActive ? activeStyle : {}),
+                    borderRadius: 4,
+                    padding: '6px 12px',
+                  })}
+                  className="hover:bg-white/20 transition-colors"
+                >
+                  <span>{label}</span> 
+                </NavLink>
+              ))}
+            </Toolbar>
+          </div>
           <FormControlLabel
             control={
               <MaterialUISwitch 
-                sx={{ m: 0 }} 
                 checked={mode === 'dark'}
                 onChange={toggleTheme}
               />

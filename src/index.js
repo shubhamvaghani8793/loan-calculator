@@ -4,13 +4,24 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { CustomThemeProvider } from './context/ThemeContext';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
+import currenciesSlice from './store/currenciesSlice';
+
+const store = configureStore({
+  reducer: {
+    currenciesData: currenciesSlice
+  }
+})
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // <React.StrictMode>
-    <CustomThemeProvider>
-      <App />
-    </CustomThemeProvider>
+    <Provider store={store}>
+      <CustomThemeProvider>
+        <App />
+      </CustomThemeProvider>
+    </Provider>
   // </React.StrictMode>
 );
 
